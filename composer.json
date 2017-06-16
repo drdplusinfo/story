@@ -1,0 +1,35 @@
+{
+  "name": "drd-plus/handbooks-story",
+  "license": "proprietary",
+  "type": "library",
+  "description": "Complete story from Drd+ handbooks",
+  "keywords": [
+    "Drd plus",
+    "rules",
+    "handbook",
+    "story"
+  ],
+  "autoload": {
+    "psr-4": {
+      "DrdPlus\\": "DrdPlus/"
+    }
+  },
+  "require": {
+    "php": ">=7.0",
+    "roave/security-advisories": "dev-master",
+    "granam/string": "dev-master",
+    "drd-plus/rules-html-skeleton": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~6.0"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "pre-autoload-dump": [
+      "rm -f $PWD/images/generic && ln -s $PWD/vendor/drd-plus/rules-html-skeleton/images/generic $PWD/images/generic",
+      "rm -f $PWD/css/generic && ln -s $PWD/vendor/drd-plus/rules-html-skeleton/css/generic $PWD/css/generic",
+      "rm -f $PWD/js/generic && ln -s $PWD/vendor/drd-plus/rules-html-skeleton/js/generic $PWD/js/generic"
+    ]
+  }
+}
