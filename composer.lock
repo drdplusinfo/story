@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jaroslavtyc/drd-plus-rules-html-skeleton.git",
-                "reference": "a8697faf4c998e8a960c743e32247498549311c9"
+                "reference": "80853607b618f0791d085b60b890606e2791dd7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jaroslavtyc/drd-plus-rules-html-skeleton/zipball/a8697faf4c998e8a960c743e32247498549311c9",
-                "reference": "a8697faf4c998e8a960c743e32247498549311c9",
+                "url": "https://api.github.com/repos/jaroslavtyc/drd-plus-rules-html-skeleton/zipball/80853607b618f0791d085b60b890606e2791dd7f",
+                "reference": "80853607b618f0791d085b60b890606e2791dd7f",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "helper",
                 "rules"
             ],
-            "time": "2017-06-16 14:53:03"
+            "time": "2017-06-19 06:04:55"
         },
         {
             "name": "granam/scalar",
