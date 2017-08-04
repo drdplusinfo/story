@@ -19,4 +19,4 @@ if (($_SERVER['QUERY_STRING'] === 'pdf' || !file_exists($documentRoot . '/html')
 }
 
 $visitorHasConfirmedOwnership = true;
-require __DIR__ . '/vendor/drd-plus/rules-html-skeleton/content.php';
+echo require __DIR__ . '/vendor/drd-plus/rules-html-skeleton/content.php';
