@@ -18,5 +18,5 @@ if (($_SERVER['QUERY_STRING'] === 'pdf' || !file_exists($documentRoot . '/html')
     exit;
 }
 
-$visitorHasConfirmedOwnership = true;
+$visitorHasConfirmedOwnership = true; // just a little hack to make content public for anyone
 echo require __DIR__ . '/vendor/drd-plus/rules-html-skeleton/content.php';
