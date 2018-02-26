@@ -28,8 +28,11 @@
   "scripts": {
     "pre-autoload-dump": [
       "cp --no-clobber $PWD/vendor/drd-plus/rules-html-skeleton/favicon.ico $PWD",
-      "rm -f $PWD/images/generic && ln -s $PWD/vendor/drd-plus/rules-html-skeleton/images/generic $PWD/images/generic",
-      "rm -f $PWD/css/generic && ln -s $PWD/vendor/drd-plus/rules-html-skeleton/css/generic $PWD/css/generic"
+      "rm -f ./images/generic && ln -s ../vendor/drd-plus/rules-html-skeleton/images/generic ./images/generic",
+      "rm -f ./css/generic && ln -s ../vendor/drd-plus/rules-html-skeleton/css/generic ./css/generic"
+    ],
+    "post-install-cmd": [
+      "rm cache/pages/*"
     ]
   }
 }
