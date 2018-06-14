@@ -11,4 +11,5 @@ $testsConfiguration->disableHasDebugContacts();
 $testsConfiguration->disableCanBeBoughtOnEshop();
 $testsConfiguration->disableHasCharacterSheet();
 $testsConfiguration->setBlockNamesToExpectedContent([]);
-$testsConfiguration->setBlockNamesToExpectedContent([]);
+$testsConfiguration->setExpectedWebName('Příběh z DrD+ pravidel');
+$testsConfiguration->setExpectedPageTitle('⏳ Příběh z DrD+ pravidel');
