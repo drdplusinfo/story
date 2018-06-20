@@ -13,3 +13,5 @@ $testsConfiguration->disableHasCharacterSheet();
 $testsConfiguration->setBlockNamesToExpectedContent([]);
 $testsConfiguration->setExpectedWebName('Příběh z DrD+ pravidel');
 $testsConfiguration->setExpectedPageTitle('⏳ Příběh z DrD+ pravidel');
+$testsConfiguration->disableHasMoreVersions();
+$testsConfiguration->disableHasLinksToAltar();
