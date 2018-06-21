@@ -1,6 +1,6 @@
 <?php
 global $testsConfiguration;
-$testsConfiguration = new \DrdPlus\Tests\RulesSkeleton\TestsConfiguration();
+$testsConfiguration = new \DrdPlus\Tests\RulesSkeleton\TestsConfiguration('https://pribeh.drdplus.info');
 $testsConfiguration->disableHasLinksToJournals();
 $testsConfiguration->disableHasLinkToSingleJournal();
 $testsConfiguration->disableHasCustomBodyContent();
@@ -15,3 +15,4 @@ $testsConfiguration->setExpectedWebName('Příběh z DrD+ pravidel');
 $testsConfiguration->setExpectedPageTitle('⏳ Příběh z DrD+ pravidel');
 $testsConfiguration->disableHasMoreVersions();
 $testsConfiguration->disableHasLinksToAltar();
+$testsConfiguration->disableHasExternalAnchorsWithHashes();
