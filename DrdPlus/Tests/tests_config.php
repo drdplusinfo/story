@@ -16,3 +16,4 @@ $testsConfiguration->setExpectedPageTitle('⏳ Příběh z DrD+ pravidel');
 $testsConfiguration->disableHasMoreVersions();
 $testsConfiguration->disableHasLinksToAltar();
 $testsConfiguration->disableHasExternalAnchorsWithHashes();
+$testsConfiguration->setExpectedGoogleAnalyticsId('UA-121206931-12');
