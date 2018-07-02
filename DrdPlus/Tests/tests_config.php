@@ -1,6 +1,6 @@
 <?php
 global $testsConfiguration;
-$testsConfiguration = new \DrdPlus\Tests\RulesSkeleton\TestsConfiguration('https://pribeh.drdplus.info');
+$testsConfiguration = new \DrdPlus\Tests\RulesSkeleton\TestsConfiguration('http://pribeh.drdplus.loc', 'https://pribeh.drdplus.info');
 $testsConfiguration->disableHasLinksToJournals();
 $testsConfiguration->disableHasLinkToSingleJournal();
 $testsConfiguration->disableHasCustomBodyContent();
