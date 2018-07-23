@@ -14,6 +14,7 @@ $testsConfiguration->setBlockNamesToExpectedContent([]);
 $testsConfiguration->setExpectedWebName('Příběh z DrD+ pravidel');
 $testsConfiguration->setExpectedPageTitle('⏳ Příběh z DrD+ pravidel');
 $testsConfiguration->disableHasMoreVersions();
+$testsConfiguration->setExpectedLastVersion('master');
 $testsConfiguration->disableHasLinksToAltar();
 $testsConfiguration->disableHasExternalAnchorsWithHashes();
 $testsConfiguration->setExpectedGoogleAnalyticsId('UA-121206931-12');
