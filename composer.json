@@ -14,9 +14,20 @@
       "DrdPlus\\": "DrdPlus/"
     }
   },
+
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "/home/jaroslav/Projects/drd-plus/frontend-skeleton"
+    },
+    {
+      "type": "vcs",
+      "url": "/home/jaroslav/Projects/drd-plus/rules/rules-skeleton"
+    }
+  ],
   "require": {
     "php": ">=7.1",
-    "drd-plus/rules-skeleton": "dev-master"
+    "drd-plus/rules-skeleton": "~1.0"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master",
@@ -31,7 +42,6 @@
       "rm -fr ./css/generic && cp -r ./vendor/drd-plus/rules-skeleton/css/generic ./css/",
       "rm -fr ./images/generic && cp -r ./vendor/drd-plus/rules-skeleton/images/generic ./images/",
       "rm -fr ./js/generic && cp -r ./vendor/drd-plus/rules-skeleton/js/generic ./js/",
-      "find ./vendor -type d -name .git -exec rm -fr {} +",
       "find ./cache -mindepth 2 -type f -exec rm {} +",
       "cp ./vendor/drd-plus/rules-skeleton/google8d8724e0c2818dfc.html .",
       "cp ./vendor/drd-plus/rules-skeleton/phpunit.xml.dist ."
