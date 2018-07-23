@@ -1,6 +1,2 @@
 /.idea
-/vendor
 /phpunit_log
-/js/generic
-/images/generic
-/composer_install_result.txt
