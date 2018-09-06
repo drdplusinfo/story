@@ -7,6 +7,7 @@ $testsConfiguration->disableHasCustomBodyContent();
 $testsConfiguration->disableHasProtectedAccess();
 $testsConfiguration->disableHasAuthors();
 $testsConfiguration->disableHasTables();
+$testsConfiguration->setSomeExpectedTableIds([]);
 $testsConfiguration->disableHasDebugContacts();
 $testsConfiguration->disableCanBeBoughtOnEshop();
 $testsConfiguration->disableHasCharacterSheet();
