@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb
+class ComposerStaticInit36789a8952f39eb9ac81603fd529c65c
 {
     public static $files = array (
         '04c6c5c2f7095ccf6c481d3e53e1776f' => __DIR__ . '/..' . '/mustangostang/spyc/Spyc.php',
@@ -317,6 +317,7 @@ class ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb
         'PHPUnit\\Runner\\AfterSuccessfulTestHook' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/Hook/AfterSuccessfulTestHook.php',
         'PHPUnit\\Runner\\AfterTestErrorHook' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/Hook/AfterTestErrorHook.php',
         'PHPUnit\\Runner\\AfterTestFailureHook' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/Hook/AfterTestFailureHook.php',
+        'PHPUnit\\Runner\\AfterTestHook' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/Hook/AfterTestHook.php',
         'PHPUnit\\Runner\\AfterTestWarningHook' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/Hook/AfterTestWarningHook.php',
         'PHPUnit\\Runner\\BaseTestRunner' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/BaseTestRunner.php',
         'PHPUnit\\Runner\\BeforeFirstTestHook' => __DIR__ . '/..' . '/phpunit/phpunit/src/Runner/Hook/BeforeFirstTestHook.php',
@@ -740,10 +741,10 @@ class ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit9882e734b58ac0e08c563c9ec8ad2ebb::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit36789a8952f39eb9ac81603fd529c65c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit36789a8952f39eb9ac81603fd529c65c::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit36789a8952f39eb9ac81603fd529c65c::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit36789a8952f39eb9ac81603fd529c65c::$classMap;
 
         }, null, ClassLoader::class);
     }
