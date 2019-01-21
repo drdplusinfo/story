@@ -1,11 +1,10 @@
 web:
   last_stable_version: 'master'
-  repository_url: git@bitbucket.org:drdplusinfo/story-web.git
   menu_position_fixed: false
   show_home_button: true
   protected_access: false
-  eshop_url: https://obchod.altar.cz/
-  name: Příběh z DrD+ pravidel
-  title_smiley: ⏳
+  eshop_url: 'https://obchod.altar.cz/'
+  name: 'Příběh z DrD+ pravidel'
+  title_smiley: '⏳'
 google:
-  analytics_id: UA-121206931-12
+  analytics_id: 'UA-121206931-12'
