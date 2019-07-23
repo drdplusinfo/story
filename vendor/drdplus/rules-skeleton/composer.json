@@ -14,6 +14,9 @@
       "DrdPlus\\": "DrdPlus/"
     }
   },
+  "bin": [
+    "bin/fix_web_permissions.sh"
+  ],
   "require": {
     "php": ">=7.1",
     "ext-curl": "*",
@@ -31,11 +34,15 @@
     "granam/strict-object": "^3.0",
     "granam/string": "^3.2",
     "granam/tools": "^3.0",
-    "granam/web-content-builder": "^1.0",
+    "granam/web-content-builder": "^1.1",
     "granam/yaml-reader": "^1.0",
     "phpgt/dom": "~1.1",
     "phpmailer/phpmailer": "^6.0",
     "piwik/device-detector": "^3.11",
+    "symfony/config": "^4.3",
+    "symfony/http-foundation": "^4.3",
+    "symfony/routing": "^4.3",
+    "symfony/yaml": "^4.3",
     "tracy/tracy": "^2.4"
   },
   "require-dev": {

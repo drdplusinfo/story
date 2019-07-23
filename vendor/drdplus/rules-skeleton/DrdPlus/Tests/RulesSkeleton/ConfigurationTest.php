@@ -109,6 +109,19 @@ class ConfigurationTest extends AbstractContentTest
         ];
     }
 
+    public function Google_analytics_id_is_unique(): void
+    {
+        if ($this->isRulesSkeletonChecked()) {
+            self::assertSame('UA-121206931-0', $this->getConfiguration()->getGoogleAnalyticsId());
+        } else {
+            self::assertNotSame(
+                'UA-121206931-1',
+                $this->getConfiguration()->getGoogleAnalyticsId(),
+                'Some valid Google analytics should be used'
+            );
+        }
+    }
+
     /**
      * @test
      * @expectedException \DrdPlus\RulesSkeleton\Exceptions\InvalidGoogleAnalyticsId
@@ -174,5 +187,27 @@ class ConfigurationTest extends AbstractContentTest
         $completeSettings[Configuration::WEB][Configuration::TITLE_SMILEY] = null;
         $configuration = new Configuration($this->getDirs(), $completeSettings);
         self::assertSame('', $configuration->getTitleSmiley());
+    }
+
+    /**
+     * @test
+     */
+    public function I_can_create_it_without_yaml_file_with_routes(): void
+    {
+        $completeSettings = $this->getSomeCompleteSettings();
+        $completeSettings[Configuration::APPLICATION][Configuration::YAML_FILE_WITH_ROUTES] = null;
+        $configuration = new Configuration($this->getDirs(), $completeSettings);
+        self::assertSame('', $configuration->getYamlFileWithRoutes());
+    }
+
+    /**
+     * @test
+     */
+    public function I_can_get_yaml_file_with_routes(): void
+    {
+        $completeSettings = $this->getSomeCompleteSettings();
+        $completeSettings[Configuration::APPLICATION][Configuration::YAML_FILE_WITH_ROUTES] = 'foo';
+        $configuration = new Configuration($this->getDirs(), $completeSettings);
+        self::assertSame('foo', $configuration->getYamlFileWithRoutes());
     }
 }

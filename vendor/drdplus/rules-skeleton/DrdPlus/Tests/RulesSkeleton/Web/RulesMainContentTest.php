@@ -64,6 +64,22 @@ class RulesMainContentTest extends MainContentTest
     /**
      * @test
      */
+    public function Every_id_is_unique(): void
+    {
+        $ids = $this->parseAllIds($this->getHtmlDocument());
+        $idsCount = \array_count_values($ids);
+        $duplicatedIds = \array_filter(
+            $idsCount,
+            function (int $count) {
+                return $count > 1;
+            }
+        );
+        self::assertSame([], $duplicatedIds, 'Some IDs are used multiple times');
+    }
+
+    /**
+     * @test
+     */
     public function I_can_navigate_to_every_heading_by_expected_anchor(): void
     {
         $htmlDocument = $this->getHtmlDocument();
@@ -138,5 +154,18 @@ class RulesMainContentTest extends MainContentTest
         );
         $rulesAuthors = $rulesAuthors->current();
         self::assertNotEmpty(\trim($rulesAuthors->textContent), 'Expected some content of rules authors');
+    }
+
+    /**
+     * @test
+     */
+    public function I_can_get_routed_content()
+    {
+        if (!$this->isSkeletonChecked()) {
+            self::assertTrue(true);
+            return;
+        }
+        $routedContent = $this->getHtmlDocument([], [], [], '/routed')->getElementById('just_some_element_from_routed_content');
+        self::assertNotEmpty($routedContent);
     }
 }

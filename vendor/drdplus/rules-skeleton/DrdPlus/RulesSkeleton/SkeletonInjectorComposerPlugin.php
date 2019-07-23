@@ -61,6 +61,7 @@ class SkeletonInjectorComposerPlugin extends StrictObject implements PluginInter
         $this->copyGoogleVerification($documentRoot);
         $this->copyPhpUnitConfig($documentRoot);
         $this->copyGitignoreToCache($documentRoot);
+        $this->copyRoutes($documentRoot);
         $this->alreadyInjected = true;
         $this->io->write("Injection of {$this->skeletonPackageName} finished");
     }
@@ -129,7 +130,7 @@ class SkeletonInjectorComposerPlugin extends StrictObject implements PluginInter
 
     private function copyPhpUnitConfig(string $documentRoot): void
     {
-        $this->passThrough(["cp ./vendor/$this->skeletonPackageName/phpunit.xml.dist ."], $documentRoot);
+        $this->passThrough(["cp --no-clobber ./vendor/$this->skeletonPackageName/phpunit.xml.dist ."], $documentRoot);
     }
 
     private function addVersionsToAssets(string $documentRoot)
@@ -200,5 +201,10 @@ class SkeletonInjectorComposerPlugin extends StrictObject implements PluginInter
     private function copyFavicon(string $documentRoot): void
     {
         $this->passThrough(["cp ./vendor/{$this->skeletonPackageName}/favicon.ico ."], $documentRoot);
+    }
+
+    private function copyRoutes(string $documentRoot): void
+    {
+        $this->passThrough(["cp --no-clobber ./vendor/{$this->skeletonPackageName}/routes.yml ."], $documentRoot);
     }
 }

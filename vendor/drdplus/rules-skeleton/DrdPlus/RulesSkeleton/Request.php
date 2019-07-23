@@ -15,8 +15,10 @@ class Request extends StrictObject
     public const TABLES = 'tables';
     public const TABULKY = 'tabulky';
     public const CONFIRM = 'confirm';
-    public const TRIAL = 'trial';
     public const PDF = 'pdf';
+    // trial
+    public const TRIAL = 'trial';
+    public const TRIAL_EXPIRED_AT = 'trial_expired_at';
 
     /** @var Bot */
     private $botParser;
@@ -60,14 +62,19 @@ class Request extends StrictObject
 
     public function getCurrentUrl(array $parameters = []): string
     {
+        $url = $_SERVER['REQUEST_URI'] ?? '/';
         if ($parameters === []) {
-            return ($_SERVER['QUERY_STRING'] ?? '') !== ''
-                ? '?' . $_SERVER['QUERY_STRING']
-                : '';
+            return $url;
         }
+        $path = parse_url($url, PHP_URL_PATH);
         $queryParameters = \array_merge($_GET ?? [], $parameters);
 
-        return '?' . \http_build_query($queryParameters);
+        return $path . '?' . \http_build_query($queryParameters);
+    }
+
+    public function getPath(): string
+    {
+        return parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     }
 
     /**
@@ -141,11 +148,16 @@ class Request extends StrictObject
 
     public function isRequestedPdf(): bool
     {
-        return $this->getQueryString() === self::PDF;
+        return $this->getQueryString() === self::PDF || $this->getValueFromGet(self::PDF) !== null;
     }
 
     public function getPhpSapi(): string
     {
         return \PHP_SAPI;
+    }
+
+    public function trialJustExpired(): bool
+    {
+        return !empty($_GET[static::TRIAL_EXPIRED_AT]) && ((int)$_GET[static::TRIAL_EXPIRED_AT]) <= \time();
     }
 }

@@ -1,16 +1,17 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DrdPlus\Tests\RulesSkeleton\Partials;
 
 use DeviceDetector\Parser\Bot;
 use DrdPlus\RulesSkeleton\Configuration;
+use DrdPlus\RulesSkeleton\ContentIrrelevantParametersFilter;
 use DrdPlus\RulesSkeleton\CookiesService;
 use DrdPlus\RulesSkeleton\CurrentWebVersion;
 use DrdPlus\RulesSkeleton\Dirs;
+use DrdPlus\RulesSkeleton\Environment;
 use DrdPlus\RulesSkeleton\HtmlHelper;
 use DrdPlus\RulesSkeleton\Request;
-use DrdPlus\RulesSkeleton\RulesController;
+use DrdPlus\RulesSkeleton\RulesApplication;
 use DrdPlus\RulesSkeleton\ServicesContainer;
 use DrdPlus\RulesSkeleton\UsagePolicy;
 use DrdPlus\RulesSkeleton\Web\RulesMainBody;
@@ -30,6 +31,8 @@ abstract class AbstractContentTest extends TestWithMockery
 
     /** @var Dirs */
     private $dirs;
+    /** @var Environment */
+    private $environment;
     /** @var TestsConfiguration */
     private $testsConfiguration;
     protected $needPassIn = true;
@@ -61,7 +64,7 @@ abstract class AbstractContentTest extends TestWithMockery
     protected function passIn(): bool
     {
         $_COOKIE[$this->getNameForLocalOwnershipConfirmation()] = true; // this cookie simulates confirmation of ownership
-        $usagePolicy = new UsagePolicy($this->getVariablePartOfNameForPass(), new Request(new Bot()), new CookiesService());
+        $usagePolicy = new UsagePolicy($this->getVariablePartOfNameForPass(), new Request($this->getBot()), new CookiesService());
         self::assertTrue(
             $usagePolicy->hasVisitorConfirmedOwnership(),
             "Ownership has not been confirmed by cookie '{$this->getNameForLocalOwnershipConfirmation()}'"
@@ -72,10 +75,19 @@ abstract class AbstractContentTest extends TestWithMockery
         return true;
     }
 
+    protected function getBot(): Bot
+    {
+        static $bot;
+        if ($bot === null) {
+            $bot = new Bot();
+        }
+        return $bot;
+    }
+
     protected function passOut(): bool
     {
         unset($_COOKIE[$this->getNameForLocalOwnershipConfirmation()]);
-        $usagePolicy = new UsagePolicy($this->getVariablePartOfNameForPass(), new Request(new Bot()), new CookiesService());
+        $usagePolicy = new UsagePolicy($this->getVariablePartOfNameForPass(), new Request($this->getBot()), new CookiesService());
         self::assertFalse(
             $usagePolicy->hasVisitorConfirmedOwnership(),
             "Ownership is still confirmed by cookie '{$this->getNameForLocalOwnershipConfirmation()}'"
@@ -90,16 +102,18 @@ abstract class AbstractContentTest extends TestWithMockery
      * @param array $get = []
      * @param array $post = []
      * @param array $cookies = []
+     * @param string $url = '/'
      * @return string
      */
-    protected function getContent(array $get = [], array $post = [], array $cookies = []): string
+    protected function getContent(array $get = [], array $post = [], array $cookies = [], string $url = '/'): string
     {
         static $contents = [];
-        $key = $this->createKey($get, $post, $cookies);
+        $key = $this->createKey($get, $post, $cookies, $url);
         if (($contents[$key] ?? null) === null) {
             $originalGet = $_GET;
             $originalPost = $_POST;
             $originalCookies = $_COOKIE;
+            $originalRequestUri = $_SERVER['REQUEST_URI'] ?? null;
             if ($get) {
                 $_GET = \array_merge($_GET, $get);
             }
@@ -108,6 +122,9 @@ abstract class AbstractContentTest extends TestWithMockery
             }
             if ($cookies) {
                 $_COOKIE = \array_merge($_COOKIE, $cookies);
+            }
+            if ($url !== '/') {
+                $_SERVER['REQUEST_URI'] = $url;
             }
             if ($this->needPassIn()) {
                 $this->passIn();
@@ -121,6 +138,7 @@ abstract class AbstractContentTest extends TestWithMockery
             $_POST = $originalPost;
             $_GET = $originalGet;
             $_COOKIE = $originalCookies;
+            $_SERVER['REQUEST_URI'] = $originalRequestUri;
             self::assertNotEmpty(
                 $contents[$key],
                 'Nothing has been fetched with GET ' . \var_export($get, true) . ', POST ' . \var_export($post, true)
@@ -132,9 +150,9 @@ abstract class AbstractContentTest extends TestWithMockery
         return $contents[$key];
     }
 
-    protected function createKey(array $get, array $post, array $cookies): string
+    protected function createKey(array $get, array $post, array $cookies, string $url): string
     {
-        return \json_encode($get) . '-' . \json_encode($post) . '-' . \json_encode($cookies) . '-' . (int)$this->needPassIn() . (int)$this->needPassOut();
+        return \json_encode($get) . '-' . \json_encode($post) . '-' . \json_encode($cookies) . '-' . $url . (int)$this->needPassIn() . (int)$this->needPassOut();
     }
 
     protected function needPassIn(): bool
@@ -151,14 +169,15 @@ abstract class AbstractContentTest extends TestWithMockery
      * @param array $get
      * @param array $post
      * @param array $cookies
+     * @param string $url = '/'
      * @return HtmlDocument
      */
-    protected function getHtmlDocument(array $get = [], array $post = [], array $cookies = []): HtmlDocument
+    protected function getHtmlDocument(array $get = [], array $post = [], array $cookies = [], string $url = '/'): HtmlDocument
     {
         static $htmlDocuments = [];
-        $key = $this->createKey($get, $post, $cookies);
+        $key = $this->createKey($get, $post, $cookies, $url);
         if (($htmlDocuments[$key] ?? null) === null) {
-            $htmlDocuments[$key] = new HtmlDocument($this->getContent($get, $post, $cookies));
+            $htmlDocuments[$key] = new HtmlDocument($this->getContent($get, $post, $cookies, $url));
         }
 
         return $htmlDocuments[$key];
@@ -166,7 +185,7 @@ abstract class AbstractContentTest extends TestWithMockery
 
     protected function fetchHtmlDocumentFromLocalUrl(): HtmlDocument
     {
-        $content = $this->fetchContentFromLink($this->getTestsConfiguration()->getLocalUrl(), true)['content'];
+        $content = $this->fetchContentFromUrl($this->getTestsConfiguration()->getLocalUrl(), true)['content'];
         self::assertNotEmpty($content);
 
         return new HtmlDocument($content);
@@ -211,16 +230,16 @@ abstract class AbstractContentTest extends TestWithMockery
         bool $shouldHideCovered = false
     ): HtmlHelper
     {
-        return new HtmlHelper($dirs ?? $this->getDirs(), $inDevMode, $inForcedProductionMode, $shouldHideCovered);
+        return new HtmlHelper($dirs ?? $this->getDirs(), $this->getEnvironment(), $inDevMode, $inForcedProductionMode, $shouldHideCovered);
     }
 
-    protected function fetchNonCachedContent(RulesController $controller = null, bool $backupGlobals = true): string
+    protected function fetchNonCachedContent(RulesApplication $rulesApplication = null, bool $backupGlobals = true): string
     {
         $originalGet = $_GET;
         $originalPost = $_POST;
         $originalCookies = $_COOKIE;
         /** @noinspection PhpUnusedLocalVariableInspection */
-        $controller = $controller ?? null;
+        $rulesApplication = $rulesApplication ?? null;
         $_GET[Request::CACHE] = Request::DISABLE;
         \ob_start();
         /** @noinspection PhpIncludeInspection */
@@ -235,12 +254,15 @@ abstract class AbstractContentTest extends TestWithMockery
         return $content;
     }
 
-    protected function fetchContentFromLink(string $link, bool $withBody, array $post = [], array $cookies = [], array $headers = []): array
+    protected const WITH_BODY = true;
+    protected const WITHOUT_BODY = true;
+
+    protected function fetchContentFromUrl(string $url, bool $withBody, array $post = [], array $cookies = [], array $headers = []): array
     {
         static $cachedContent = [];
-        $key = $link . ($withBody ? '1' : '0') . $this->createKey($headers, $post, $cookies);
+        $key = ($withBody ? '1' : '0') . $this->createKey($headers, $post, $cookies, $url);
         if (($cachedContent[$key] ?? null) === null) {
-            $curl = \curl_init($link);
+            $curl = \curl_init($url);
             \curl_setopt($curl, \CURLOPT_RETURNTRANSFER, 1);
             \curl_setopt($curl, \CURLOPT_CONNECTTIMEOUT, 7);
             if (!$withBody) {
@@ -337,16 +359,33 @@ abstract class AbstractContentTest extends TestWithMockery
         return $this->configuration;
     }
 
-    protected function createRequest(string $requestedVersion = null): Request
+    /**
+     * @param array $values
+     * @param string $path
+     * @return Request|MockInterface
+     */
+    protected function createRequest(array $values = [], string $path = '/'): Request
     {
         $request = $this->mockery($this->getRequestClass());
-        $request->allows('getValue')
-            ->with(Request::VERSION)
-            ->andReturn($requestedVersion);
+        foreach ($values as $name => $value) {
+            $request->allows('getValue')
+                ->with($name)
+                ->andReturn($value);
+        }
+        $request->allows('getPath')
+            ->andReturn($path);
         $request->makePartial();
 
-        /** @var Request $request */
         return $request;
+    }
+
+    protected function getContentIrrelevantParametersFilter(): ContentIrrelevantParametersFilter
+    {
+        static $contentIrrelevantParametersFilter;
+        if ($contentIrrelevantParametersFilter === null) {
+            $contentIrrelevantParametersFilter = $this->createServicesContainer()->getContentIrrelevantParametersFilter();
+        }
+        return $contentIrrelevantParametersFilter;
     }
 
     protected function createGit(): Git
@@ -356,36 +395,42 @@ abstract class AbstractContentTest extends TestWithMockery
 
     /**
      * @param array $customSettings
+     * @param Dirs $dirs = null
      * @return Configuration|MockInterface
      */
-    protected function createCustomConfiguration(array $customSettings): Configuration
+    protected function createCustomConfiguration(array $customSettings, Dirs $dirs = null): Configuration
     {
         $originalConfiguration = $this->getConfiguration();
         $configurationClass = \get_class($originalConfiguration);
         $customConfiguration = new $configurationClass(
-            $originalConfiguration->getDirs(),
+            $dirs ?? $originalConfiguration->getDirs(),
             \array_replace_recursive($originalConfiguration->getSettings(), $customSettings)
         );
-
+        /** Configuration|MockInterface */
         return $customConfiguration;
     }
 
-    protected function createController(
+    protected function createRulesApplication(
         Configuration $configuration = null,
         HtmlHelper $htmlHelper = null
-    ): RulesController
+    ): RulesApplication
     {
-        $controllerClass = $this->getControllerClass();
+        $rulesApplicationClass = $this->getRulesApplicationClass();
 
-        return new $controllerClass($this->createServicesContainer($configuration, $htmlHelper));
+        return new $rulesApplicationClass($this->createServicesContainer($configuration, $htmlHelper));
     }
 
-    protected function createServicesContainer(
-        Configuration $configuration = null,
-        HtmlHelper $htmlHelper = null
-    ): ServicesContainer
+    protected function getServicesContainer(): ServicesContainer
     {
+        static $servicesContainer;
+        if ($servicesContainer === null) {
+            $servicesContainer = $this->createServicesContainer();
+        }
+        return $servicesContainer;
+    }
 
+    protected function createServicesContainer(Configuration $configuration = null, HtmlHelper $htmlHelper = null): ServicesContainer
+    {
         return new ServicesContainer(
             $configuration ?? $this->getConfiguration(),
             $htmlHelper ?? $this->createHtmlHelper($this->getDirs())
@@ -400,7 +445,6 @@ abstract class AbstractContentTest extends TestWithMockery
         if ($this->dirs === null) {
             $this->dirs = $this->createDirs($this->getProjectRoot());
         }
-
         return $this->dirs;
     }
 
@@ -414,6 +458,14 @@ abstract class AbstractContentTest extends TestWithMockery
     protected function getDirsClass(): string
     {
         return Dirs::class;
+    }
+
+    protected function getEnvironment(): Environment
+    {
+        if ($this->environment === null) {
+            $this->environment = new Environment();
+        }
+        return $this->environment;
     }
 
     /**
@@ -497,7 +549,7 @@ abstract class AbstractContentTest extends TestWithMockery
     {
         static $nameOfOwnershipConfirmation;
         if ($nameOfOwnershipConfirmation === null) {
-            $usagePolicy = new UsagePolicy($this->getVariablePartOfNameForPass(), new Request(new Bot()), new CookiesService());
+            $usagePolicy = new UsagePolicy($this->getVariablePartOfNameForPass(), new Request($this->getBot()), new CookiesService());
             try {
                 $usagePolicyReflection = new \ReflectionClass(UsagePolicy::class);
             } catch (\ReflectionException $reflectionException) {
@@ -573,9 +625,9 @@ abstract class AbstractContentTest extends TestWithMockery
         return Configuration::class;
     }
 
-    protected function getControllerClass(): string
+    protected function getRulesApplicationClass(): string
     {
-        return RulesController::class;
+        return RulesApplication::class;
     }
 
     protected function unifyPath(string $path): string
@@ -630,6 +682,16 @@ abstract class AbstractContentTest extends TestWithMockery
             $git ?? $this->createGit(),
             $webVersions ?? $this->createWebVersions($git)
         );
+    }
+
+    protected function getCurrentWebVersion(): CurrentWebVersion
+    {
+        static $currentWebVersion;
+        if ($currentWebVersion === null) {
+            $currentWebVersion = $this->createCurrentWebVersion();
+        }
+
+        return $currentWebVersion;
     }
 
     protected function getProjectRoot(): string
@@ -703,5 +765,44 @@ abstract class AbstractContentTest extends TestWithMockery
         }
 
         return $tableIds;
+    }
+
+    protected function parseAllIds(HtmlDocument $htmlDocument): array
+    {
+        if (!\preg_match_all('~\sid\s*=\s*"(?<id>[^"]+)~', $htmlDocument->saveHTML(), $idMatches)) {
+            return [];
+        }
+        $ids = [];
+        foreach ($idMatches['id'] as $id) {
+            $ids[] = \html_entity_decode($id);
+        }
+        return $ids;
+    }
+
+    /**
+     * @test
+     */
+    public function Globals_are_cleaned(): void
+    {
+        self::assertCount(0, $_GET, 'Global $_GET is not empty, have you forgot to set @backupGlobals enabled ?, ' . \var_export($_GET, true));
+        self::assertCount(0, $_POST, 'Global $_POST is not empty, have you forgot to set @backupGlobals enabled ? ' . \var_export($_POST, true));
+        if (!$this->getTestsConfiguration()->hasProtectedAccess()) {
+            self::assertCount(0, $_COOKIE, 'Global $_COOKIE is not empty, have you forgot to set @backupGlobals enabled ? ' . \var_export($_COOKIE, true));
+        } else {
+            $allowedCookieKeys = [
+                UsagePolicy::OWNERSHIP_COOKIE_NAME,
+                UsagePolicy::TRIAL_COOKIE_NAME,
+                UsagePolicy::TRIAL_EXPIRED_AT_COOKIE_NAME,
+            ];
+            if (isset($_COOKIE[UsagePolicy::OWNERSHIP_COOKIE_NAME])) {
+                $allowedCookieKeys[] = $_COOKIE[UsagePolicy::OWNERSHIP_COOKIE_NAME];
+            }
+            $cookieTrash = \array_diff_key($_COOKIE, \array_fill_keys($allowedCookieKeys, 'foo'));
+            self::assertCount(
+                0,
+                $cookieTrash,
+                'Global $_COOKIE after filtering pass-related values is not empty, have you forgot to set @backupGlobals enabled ? ' . \var_export($cookieTrash, true)
+            );
+        }
     }
 }
